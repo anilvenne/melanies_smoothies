@@ -1,32 +1,5 @@
-Use Python 3.12
-
-3.12
-
-
-AWS Shell Script
-
-dmgdev
-
-US East (N. Virginia) [us-east-1]
-
-python $(System.DefaultWorkingDirectory)/consumer/dwsqlexec.py
-
-copy into library_card_catalog.public.nested_ingest_json
-from '@UTIL_DB.PUBLIC.MY_INTERNAL_STAGE/nutrition_tweets.json'
-file_format = social_media_floodgates.public.json_file_format
-
-
-create file format smoothies.public.two_headerrow_pct_delim
-   type = CSV,
-   skip_header = 2,   
-   field_delimiter = '%',
-   trim_space = TRUE
-;
-
-
 # Import python packages
 import streamlit as st
-from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark.functions import col
 
 # Write directly to the app
@@ -39,7 +12,8 @@ st.write(
   """
 )
 
-session = get_active_session()
+cnx = st.connection("snowflake")
+session = cnx.session()
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('fruit_name'))
 #st.dataframe(data=my_dataframe, use_container_width=True)
 
@@ -49,6 +23,7 @@ st.write('The Name on your Smoothie will be :', name_on_order)
 ingredients_list= st.multiselect(
     'choose up to 5 ingredients:'
     , my_dataframe
+    , max_selections=5
 )
 
 if ingredients_list:
